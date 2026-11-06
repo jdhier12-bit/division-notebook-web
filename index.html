@@ -1,5 +1,12 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#6d48c9"><title>Division Notebook</title><link rel="stylesheet" href="style.css"></head><body>
 <header><div><h1>✏️ Division <span>Notebook</span></h1><div class="sub">Little steps. Big discoveries.</div></div><div class="spacer"></div><button class="btn-plain" id="mute">🔊 Sound on</button><label class="rm"><input type="checkbox" id="rm-toggle"> Less motion</label></header>
+<div class="game-hud" id="game-hud" aria-label="Game progress">
+  <div class="stat"><span class="lbl">Score</span><b id="g-score">0</b></div>
+  <div class="stat"><span class="lbl">Streak</span><b id="g-streak">0</b></div>
+  <div class="stat"><span class="lbl">Level</span><b id="g-level">1</b></div>
+  <div class="stat goal"><span class="lbl">Next level</span><div class="gbar"><div class="gfill" id="g-fill"></div></div><span id="g-goal">0 / 3</span></div>
+</div>
+<div id="g-toast" class="g-toast" hidden></div>
 <main><section class="paper"><div class="progress" id="progress"></div><h2>Let's work it out, one step at a time!</h2>
 <div class="toolbar"><label>Digits <select id="digits"><option>2</option><option>3</option><option>4</option><option>5</option></select></label><label>Divisor <select id="difficulty"><option value="gentle">1 digit · gentle</option><option value="steady">Up to 2 digits</option><option value="challenge">Up to 3 digits</option></select></label></div>
 <div class="probs" id="probs"><button data-p="38/9">38 ÷ 9</button><button data-p="299/138">299 ÷ 138</button><button data-p="rand">✨ New random</button></div><h2 id="problem-label"></h2><div class="chips" id="chips" aria-label="Solution steps"></div>

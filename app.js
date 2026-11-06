@@ -613,7 +613,37 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
   "use strict";
   var E = window.__DivisionDash;
   function $(id) { return document.getElementById(id); }
-  var solved=0; try {solved=+(localStorage.getItem("notebook-solved")||0);}catch(e){}
+  var GAME={score:0,streak:0,best:0,level:1,solved:0};
+  try{var _g=JSON.parse(localStorage.getItem("notebook-game")||"null"); if(_g) Object.assign(GAME,_g); GAME.solved=+(localStorage.getItem("notebook-solved")||GAME.solved||0);}catch(e){}
+  function saveGame(){ try{localStorage.setItem("notebook-game",JSON.stringify(GAME)); localStorage.setItem("notebook-solved",GAME.solved);}catch(e){} }
+  function xpToNext(lv){ return 3 + Math.floor((lv-1)*1.5); }
+  function toast(msg){ var t=$("g-toast"); if(!t) return; t.hidden=false; t.textContent=msg; t.classList.add("on"); clearTimeout(toast._tm); toast._tm=setTimeout(function(){t.classList.remove("on");},1800); }
+  function paintGame(){
+    if(!$("g-score")) return;
+    $("g-score").textContent=GAME.score;
+    $("g-streak").textContent=GAME.streak + (GAME.best? " · best "+GAME.best : "");
+    $("g-level").textContent=GAME.level;
+    var need=xpToNext(GAME.level), into=GAME.solved % need; // use progress within level via solvedSinceLevel
+    var prog=GAME._prog||0; need=xpToNext(GAME.level);
+    $("g-goal").textContent=prog+" / "+need;
+    $("g-fill").style.width=Math.min(100, Math.round(100*prog/need))+"%";
+  }
+  function awardSolve(){
+    GAME.solved++;
+    GAME.streak++;
+    if(GAME.streak>GAME.best) GAME.best=GAME.streak;
+    var pts=100 + Math.min(200, (GAME.streak-1)*25);
+    GAME.score+=pts;
+    GAME._prog=(GAME._prog||0)+1;
+    var need=xpToNext(GAME.level);
+    var leveled=false;
+    while(GAME._prog>=need){ GAME._prog-=need; GAME.level++; need=xpToNext(GAME.level); leveled=true; }
+    saveGame(); paintGame();
+    if(leveled) toast("⭐ Level "+GAME.level+"! Keep going!");
+    else if(GAME.streak>=3 && GAME.streak%3===0) toast("🔥 "+GAME.streak+" streak! +"+pts+" pts");
+    else toast("+"+pts+" pts");
+  }
+
   var ss = null, buf = "", energy = 100, curKey = "38/9", lastWritten = {};
   var PHASES = [["place", "Place"], ["divide", "Divide"], ["multiply", "Multiply"], ["subtract", "Subtract"], ["compare", "Compare"], ["bringdown", "Bring down"]];
 
@@ -660,8 +690,8 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
   function render() {
     var st = step(), pr = ss.problem, N = pr.digs.length, fp = pr.firstPlacement, d = pr.divisor;
     $("problem-label").textContent = pr.dividend + " ÷ " + d;
-    if (ss.done && !ss.counted) { ss.counted = true; solved++; try {localStorage.setItem("notebook-solved",solved);}catch(e){} }
-    $("progress").textContent = "★ " + solved + " problems solved · Keep growing!";
+    if (ss.done && !ss.counted) { ss.counted = true; awardSolve(); }
+    $("progress").textContent = "★ Level " + GAME.level + " · " + GAME.solved + " solved · streak " + GAME.streak;
     var dw = (String(d).length * 30 + 10) + "px";
     var phase = ss.done ? "done" : ss.phase;
     var h = "";

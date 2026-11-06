@@ -92,3 +92,15 @@ main{display:block;max-width:920px;padding:24px 18px}.paper{box-shadow:0 12px 40
 @media(max-width:540px){header{padding:15px;gap:10px}header h1{font-size:1.35rem}.sub{max-width:260px}main{padding:12px 8px}.paper{padding:18px 12px 20px 32px}.paper:before{left:21px}.board-wrap{display:block}.board{width:max-content;margin-bottom:12px}.mini{display:inline-block}.board,.mini{--cw:26px}.board{font-size:1.6rem}.probs button{min-height:40px}.toolbar{gap:6px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
 body.rm *,body.rm *:before{animation:none!important;transition:none!important}
+
+.game-hud{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 22px;background:#0a1426ee;border-bottom:1px solid #1f355c;font-family:var(--ui)}
+.game-hud .stat{display:flex;flex-direction:column;gap:2px;min-width:64px}
+.game-hud .stat.goal{flex:1;min-width:160px}
+.game-hud .lbl{font-size:.65rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#9fb3d1}
+.game-hud b{font-size:1.25rem;color:#ffd24d}
+.game-hud .gbar{height:10px;border-radius:999px;background:#1c2f52;overflow:hidden;border:1px solid #2f4a78;margin:3px 0}
+.game-hud .gfill{height:100%;width:0%;background:linear-gradient(90deg,#f2b632,#22c55e);transition:width .35s ease}
+.game-hud #g-goal{font-size:.75rem;color:#9fb3d1;font-weight:700}
+.g-toast{position:fixed;left:50%;top:18%;transform:translate(-50%,-50%) scale(.9);z-index:80;background:linear-gradient(135deg,#f2b632,#ffdf7e);color:#2b1b00;font-weight:900;font-size:1.1rem;padding:14px 22px;border-radius:12px;box-shadow:0 12px 40px #000a;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;font-family:var(--ui);text-align:center}
+.g-toast.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+@media (max-width:600px){.game-hud{padding:8px 12px}.game-hud b{font-size:1.05rem}}
