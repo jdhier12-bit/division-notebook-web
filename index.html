@@ -1,6 +1,15 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#6d48c9"><title>Division Notebook</title><link rel="stylesheet" href="style.css"></head><body>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#6d48c9"><title>Division Notebook</title><link rel="stylesheet" href="style.css?v=2"></head><body>
 <header><div><h1>✏️ Division <span>Notebook</span></h1><div class="sub">Little steps. Big discoveries.</div></div><div class="spacer"></div><button class="btn-plain" id="mute">🔊 Sound on</button><label class="rm"><input type="checkbox" id="rm-toggle"> Less motion</label></header>
-<main><section class="paper"><div class="progress" id="progress"></div><h2>Let's work it out, one step at a time!</h2>
+<main><section class="arena" aria-label="Game modes">
+<h2>🌟 Your notebook adventures</h2>
+<form id="signin"><label>Username <input id="username" maxlength="20" autocomplete="nickname" placeholder="Choose a name" required pattern="[A-Za-z0-9_-]{2,20}"></label><button>Create / sign in</button><button type="button" id="signout">Sign out</button></form>
+<p id="profile" role="status">Playing as Guest. Names are saved only on this device — no password needed.</p>
+<div class="mode-buttons"><button id="practice-mode">✏️ Practice</button><button id="boss-mode">🐉 Boss battle</button><button id="duo-mode">⚔️ Two players</button></div>
+<div id="invite-panel" hidden><form id="invite"><label>Friend's username <input id="friend" maxlength="20" required pattern="[A-Za-z0-9_-]{2,20}" placeholder="Player2"></label><button>Invite to Pass &amp; Play</button></form><p>Same device only: enter your friend's name, then pass the device so they can accept. Online invites are not connected.</p></div>
+<p id="arena-status" role="status" aria-live="polite">Practice at your own pace.</p><p id="arena-clock"></p>
+<div id="turn-gate" hidden><p id="gate-text"></p><button id="gate-ready">I'm ready!</button></div>
+<p class="online-note">Online battles coming soon — a free shared backend is needed. Usernames here are local nicknames, not verified accounts.</p>
+</section><section class="paper"><div class="progress" id="progress"></div><h2>Let's work it out, one step at a time!</h2>
 <div class="toolbar"><label>Digits <select id="digits"><option>2</option><option>3</option><option>4</option><option>5</option></select></label><label>Divisor <select id="difficulty"><option value="gentle">1 digit · gentle</option><option value="steady">Up to 2 digits</option><option value="challenge">Up to 3 digits</option></select></label></div>
 <div class="probs" id="probs"><button data-p="38/9">38 ÷ 9</button><button data-p="299/138">299 ÷ 138</button><button data-p="rand">✨ New random</button></div><h2 id="problem-label"></h2><div class="chips" id="chips" aria-label="Solution steps"></div>
 <div class="energy"><div class="lbl"><span>⚡ Learning energy</span><span id="epct">100%</span></div><div class="ebar" id="ebar"><div class="efill" id="efill"></div></div></div>
@@ -9,4 +18,4 @@
 <div class="keypad" id="keypad" aria-label="Number keypad"></div><div class="fb" id="fb" role="status"></div>
 <div class="help"><b>Start here:</b> tap the column where your first answer digit belongs. Then follow the highlighted step!<br>Type one digit at a time — it checks automatically. Use Enter for a partial entry, ⌫ to erase, Y/N to compare, and C to change a quotient estimate.<br>Multiplication carries and subtraction borrowing get their own mini-notebooks. Mistakes are chances to learn: try again! Energy refills with progress and every new problem.</div></section></main>
 <div class="overlay" id="out" role="dialog" aria-modal="true" aria-labelledby="rest-title"><div class="box"><div style="font-size:2.4rem">🌱</div><h3 id="rest-title">Take a little breath</h3><p>Learning takes practice. Refill your energy and try the same step again!</p><button class="btn-good" id="out-go">I'm ready — refill energy</button></div></div>
-<script src="app.js"></script></body></html>
+<script src="app.js?v=2"></script></body></html>
