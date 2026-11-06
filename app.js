@@ -615,36 +615,9 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
   function $(id) { return document.getElementById(id); }
   var solved=0; try {solved=+(localStorage.getItem("notebook-solved")||0);}catch(e){}
   var ss = null, buf = "", energy = 100, curKey = "38/9", lastWritten = {};
-  var mode = "practice", locked = false, player = "Guest", friend = "Player2";
-  var hp = 100, bossHP = 100, battleScore = 0, finished = false;
-  var turn = 0, round = 1, points = [0,0], times = [], started = 0, turnDone = false, readyAction = null;
-  function store(k,v) { try { localStorage.setItem(k,JSON.stringify(v)); } catch(e) {} }
-  function read(k,def) { try { return JSON.parse(localStorage.getItem(k)) || def; } catch(e) { return def; } }
-  player = read("division-player", "Guest");
-  function profile() { $("profile").textContent = "Playing as " + player + ". Local device nickname (not an online account)."; }
-  function lock(v) { locked=v; document.body.classList.toggle("turn-locked",v); document.querySelector(".paper").inert=v; }
-  function gate(text,action) { lock(true); $("gate-text").textContent=text; $("turn-gate").hidden=false; readyAction=action; }
-  $("gate-ready").onclick=function(){ $("turn-gate").hidden=true; lock(false); if(readyAction) readyAction(); };
-  $("signin").onsubmit=function(e){ e.preventDefault(); var n=$("username").value.trim(); if(!/^[A-Za-z0-9_-]{2,20}$/.test(n))return; var names=read("division-users",[]); if(!names.includes(n))names.push(n); store("division-users",names); player=n; store("division-player",n); profile(); resetMode("practice"); };
-  $("signout").onclick=function(){player="Guest";store("division-player",player);profile();resetMode("practice");};
-  function status(text){ $("arena-status").textContent=text; }
-  function bossStatus(){status("🐉 Boss HP: "+bossHP+" / 100 · ❤️ Your HP: "+hp+" / 100 · Score: "+battleScore);}
-  function resetMode(m){ mode=m; finished=false; turnDone=false; hp=100;bossHP=100;battleScore=0; points=[0,0];times=[];round=1;turn=0; $("out").classList.remove("on");$("turn-gate").hidden=true;lock(false);$("invite-panel").hidden=m!=="duo";$("arena-clock").textContent=""; document.querySelectorAll("#probs button,#digits,#difficulty").forEach(function(b){b.disabled=m!=="practice";}); if(m==="boss"){bossStatus();load("rand");}else if(m==="practice"){status("Practice at your own pace.");load("rand");} }
-  $("practice-mode").onclick=function(){resetMode("practice");};
-  $("boss-mode").onclick=function(){resetMode("boss");};
-  $("duo-mode").onclick=function(){resetMode("duo");status("Enter a friend's username to invite them on this device.");lock(true);};
-  function beginTurn(){turnDone=false;load("rand");started=performance.now();status("Round "+round+" / 3 · "+[player,friend][turn]+"'s turn · Points: "+points[0]+" – "+points[1]);}
-  function prepareTurn(){gate("Pass to "+[player,friend][turn]+". Timer starts only when you tap ready. Each player gets a fresh problem at the selected difficulty.",beginTurn);}
-  $("invite").onsubmit=function(e){e.preventDefault();friend=$("friend").value.trim();if(!/^[A-Za-z0-9_-]{2,20}$/.test(friend))return;if(friend.toLowerCase()===player.toLowerCase()){status("Choose a different name for Player 2.");return;}gate(friend+", "+player+" invited you! Tap ready to accept this same-device battle. Then pass back to "+player+".",prepareTurn);};
-  function outcome(ok){if(mode!=="boss"||finished)return;hp=Math.max(0,Math.min(100,hp+(ok?5:-20)));battleScore=Math.max(0,battleScore+(ok?10:-15));bossStatus();if(hp===0){finished=true;gate("The boss won this time! Final score: "+battleScore+". Tap ready for a fresh boss battle.",function(){resetMode("boss");});}}
-  function completed(){if(turnDone||!ss.done)return;turnDone=true;if(mode==="boss"){bossHP=Math.max(0,bossHP-34);bossStatus();if(bossHP===0){finished=true;gate("🏆 You defeated the boss! Score: "+battleScore+". Tap ready to play again.",function(){resetMode("boss");});}}if(mode==="duo"){times[turn]=(performance.now()-started)/1000;if(turn===0){turn=1;gate(player+" finished in "+times[0].toFixed(1)+"s. Pass to "+friend+"!",beginTurn);}else{var difference=times[0]-times[1],tie=Math.abs(difference)<0.05,winner=difference<0?0:1;if(!tie)points[winner]++;var result="Round "+round+": "+player+" "+times[0].toFixed(1)+"s · "+friend+" "+times[1].toFixed(1)+"s. "+(tie?"Tie — no point.":[player,friend][winner]+" wins the point!");status(result+" Score: "+points[0]+" – "+points[1]);if(round===3){finished=true;gate(result+" 🏆 "+(points[0]===points[1]?"Match tied!":(points[0]>points[1]?player:friend)+" wins the match!")+" Final: "+points[0]+" – "+points[1]+". Ready for a rematch?",function(){resetMode("duo");prepareTurn();});}else{round++;turn=0;gate(result+" Pass to "+player+" for round "+round+".",beginTurn);}}}}
-  setInterval(function(){if(mode==="duo"&&!locked&&!turnDone)$("arena-clock").textContent="⏱ "+((performance.now()-started)/1000).toFixed(1)+" seconds";},100);
-  profile();
   var PHASES = [["place", "Place"], ["divide", "Divide"], ["multiply", "Multiply"], ["subtract", "Subtract"], ["compare", "Compare"], ["bringdown", "Bring down"]];
 
   function load(key) {
-    if (locked) return;
-    turnDone = false;
     curKey = key;
     var pr;
     if (key === "rand") {
@@ -667,10 +640,9 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
     energy = Math.max(0, Math.min(100, v));
     $("efill").style.width = energy + "%"; $("epct").textContent = Math.round(energy) + "%";
     $("efill").style.background = energy > 50 ? "linear-gradient(90deg,#22c55e,#a3e635)" : energy > 25 ? "linear-gradient(90deg,#f59e0b,#fbbf24)" : "linear-gradient(90deg,#dc2626,#f87171)";
-    if (energy <= 0 && mode === "practice") { $("out").classList.add("on"); $("out-go").focus(); }
+    if (energy <= 0) { $("out").classList.add("on"); $("out-go").focus(); }
   }
   function drain(amount) {
-    outcome(false);
     setEnergy(energy - amount);
     var b = $("ebar"); b.classList.remove("drain"); void b.offsetWidth; b.classList.add("drain");
   }
@@ -846,10 +818,10 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
 
   /* ---------- input ---------- */
   function tapCol(j, el) {
-    if (locked || $("out").classList.contains("on")) return;
+    if ($("out").classList.contains("on")) return;
     if (!ss || ss.done || ss.phase !== "place") return;
     var r = E.sessionSubmit(ss, j);
-    if (r.ok) { outcome(true); AU.tick(); fb("✓ " + r.msg, "good");  render(); }
+    if (r.ok) { AU.tick(); fb("✓ " + r.msg, "good");  render(); }
     else {
       drain(20); fb("✗ " + r.msg + "  (−20% energy)", "bad"); AU.buzz(); 
       if (el) { el.classList.remove("miss"); void el.offsetWidth; el.classList.add("miss"); }
@@ -862,14 +834,13 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
     var r = E.sessionSubmit(ss, val);
     buf = "";
     if (r.invalid) { fb(r.msg, "bad"); render(); return; }
-    if (r.needRevise && !r.ok) { outcome(false); fb(r.msg, "bad"); ss.needRevise = true; render(); return; }
+    if (r.needRevise && !r.ok) { fb(r.msg, "bad"); ss.needRevise = true; render(); return; }
     if (!r.ok) {
       drain(10); AU.buzz();  fb("✗ " + r.msg + "  (−10% energy)", "bad");
       var en = $("entry"); en.classList.remove("bad"); void en.offsetWidth; en.classList.add("bad");
       render(); return;
     }
     if (r.needRevise) { ss.needRevise = true; fb(r.msg, ""); AU.tick(); render(); return; }
-    outcome(true);
     AU.tick();
     var advanced = ss.done || ss.phase !== before || ss.place !== beforePlace;
     var now = step();
@@ -883,10 +854,9 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
       fb("✓ " + r.msg, "good");
     } else fb("✓ " + r.msg, "good");
     render();
-    completed();
   }
   function typeDigit(dg) {
-    if (locked || $("out").classList.contains("on")) return;
+    if ($("out").classList.contains("on")) return;
     var st = step(); if (!st || ss.done) return;
     if (st.type === "place") return;
     if (st.type === "compare") { if (!ss.needRevise && (dg === 1 || dg === 0)) submit(dg); return; }
@@ -895,16 +865,16 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
     if (buf.length >= needDigits(st)) submit(Number(buf)); else render();
   }
   function changeQ() {
-    if (locked || $("out").classList.contains("on")) return;
+    if ($("out").classList.contains("on")) return;
     if (E.sessionChangeQuotient(ss)) { ss.needRevise = false; buf = ""; fb("Pick a new quotient digit.", ""); render(); }
   }
   document.addEventListener("keydown", function (e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.target.matches("select,input") || (e.target.matches("button") && (e.key === "Enter" || e.key === " "))) return;
     if (e.key === "Enter" && e.target.dataset.col != null) { e.preventDefault(); tapCol(+e.target.dataset.col,e.target); return; }
-    if (locked || $("out").classList.contains("on")) return;
+    if ($("out").classList.contains("on")) return;
     if (/^[0-9]$/.test(e.key)) { e.preventDefault(); typeDigit(+e.key); }
-    else if (e.key === "Enter") { e.preventDefault(); if (buf) submit(Number(buf)); else if (ss.done && mode !== "duo") load("rand"); }
+    else if (e.key === "Enter") { e.preventDefault(); if (buf) submit(Number(buf)); else if (ss.done) load(curKey === "38/9" ? "299/138" : "rand"); }
     else if (e.key === "Backspace") { buf = buf.slice(0, -1); render(); }
     else if (/^[yY]$/.test(e.key)) typeDigit(1);
     else if (/^[nN]$/.test(e.key)) typeDigit(0);
@@ -919,7 +889,7 @@ var AU=(function(){var ctx,muted=false;function ensure(){try{if(!ctx)ctx=new(win
   });
   $("cmp").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) typeDigit(+b.dataset.v); });
   $("chq").addEventListener("click", changeQ);
-  $("next").addEventListener("click", function () { if(mode !== "duo" && !locked) load("rand"); });
+  $("next").addEventListener("click", function () { load(curKey === "38/9" ? "299/138" : "rand"); });
   $("probs").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) load(b.dataset.p); });
   $("out-go").addEventListener("click", function () { $("out").classList.remove("on"); setEnergy(100); });
   $("mute").addEventListener("click", function () { var m = AU.toggle(); this.textContent = m ? "🔇 Sound off" : "🔊 Sound on"; });
